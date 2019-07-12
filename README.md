@@ -111,6 +111,7 @@ has been reached. You can override this behaviour by exposing a bean that implem
 interface:
 
 ```java
+@Component
 public class CustomTooManyLoginAttemptsErrorHandler implements TooManyLoginAttemptsErrorHandler {
        
    @Override
