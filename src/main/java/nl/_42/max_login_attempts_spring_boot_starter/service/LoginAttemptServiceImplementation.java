@@ -6,6 +6,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import nl._42.max_login_attempts_spring_boot_starter.LoginAttemptConfiguration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Service;
 public class LoginAttemptServiceImplementation implements LoginAttemptService {
 
     public static final String DEFAULT_CLEAR_ALL_ATTEMPTS_CRON = "'0 0 0 * * *'";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoginAttemptServiceImplementation.class);
 
     private final LoginAttemptConfiguration loginAttemptConfiguration;
     private final Clock clock;
@@ -48,8 +52,11 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
      */
     @Override
     public synchronized boolean loginFailed(String username, String remoteAddress) {
+        LOGGER.debug("User {} on remote address {} used incorrect login credentials. Added a counter to the login attempts.", username, remoteAddress);
+
         // If the remoteAddress is already blocked we don't need to do anything and return.
         if (isBlocked(username, remoteAddress)) {
+            LOGGER.debug("User {} on remote address {} was already blocked, no additional failure is added.", username, remoteAddress);
             return true;
         }
 
@@ -64,8 +71,12 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
          * when the unblock deadline has passed.
          */
         if (hasReachedLoginAttemptLimit(username, remoteAddress)) {
+            int attemptLimit = loginAttemptConfiguration.getMaxAttempts();
+            LocalDateTime unblockTime = LocalDateTime.now(clock).plusSeconds(loginAttemptConfiguration.getCooldown() / 1000);
+
+            LOGGER.warn("User {} on remote address {} has reached the login attempt limit of {} and is now blocked until {}.",  username, remoteAddress, attemptLimit, unblockTime);
             clearAttempts(usernameIPAddress);
-            blockedUsernameIPAddresses.put(usernameIPAddress, LocalDateTime.now(clock).plusSeconds(loginAttemptConfiguration.getCooldown() / 1000));
+            blockedUsernameIPAddresses.put(usernameIPAddress, unblockTime);
             return true;
         }
 
@@ -85,6 +96,7 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
      */
     @Override
     public void loginSucceeded(String username, String remoteAddress) {
+        LOGGER.debug("User {} on remote address {} succeeded to login.", username, remoteAddress);
         UsernameIPAddress usernameIPAddress = new UsernameIPAddress(username, remoteAddress);
         clearAttempts(usernameIPAddress);
     }
@@ -110,12 +122,14 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
             return false;
         }
 
-        // Otherwise we retrieve the deadline and check if it has passed.
+        // Otherwise we retrieve the unblockTime and check if it has passed.
         // If it has passed we do a little cleanup and remove the record.
-        LocalDateTime deadline = blockedUsernameIPAddresses.get(usernameIPAddress);
-        if (LocalDateTime.now(clock).isBefore(deadline)) {
+        LocalDateTime unblockTime = blockedUsernameIPAddresses.get(usernameIPAddress);
+        if (LocalDateTime.now(clock).isBefore(unblockTime)) {
+            LOGGER.debug("User {} on remote address {} cannot log in because he is blocked until {}", username, remoteAddress, unblockTime);
             return true;
         } else {
+            LOGGER.debug("User {} on remote address {} may login again because the unblock time of {} has passed.", unblockTime, remoteAddress, unblockTime);
             blockedUsernameIPAddresses.remove(usernameIPAddress);
             return false;
         }
@@ -128,6 +142,7 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
     @Override
     @Scheduled(cron = "${max-login-attempts-starter.clear-all-attempts-cron:#{" + DEFAULT_CLEAR_ALL_ATTEMPTS_CRON + "}}")
     public synchronized void reset() {
+        LOGGER.info("Clearing all login attempt records.");
         attemptsCache.clear();
         blockedUsernameIPAddresses.clear();
     }
