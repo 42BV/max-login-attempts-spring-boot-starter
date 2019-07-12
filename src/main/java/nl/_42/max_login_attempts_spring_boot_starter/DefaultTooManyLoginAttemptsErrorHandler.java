@@ -1,4 +1,4 @@
-package nl._42.max_login_attempts_spring_boot_starter.filter;
+package nl._42.max_login_attempts_spring_boot_starter;
 
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -26,5 +26,6 @@ class DefaultTooManyLoginAttemptsErrorHandler implements TooManyLoginAttemptsErr
         response.setContentType(APPLICATION_JSON_VALUE);
         objectMapper.writeValue(response.getWriter(), Collections.singletonMap("errorCode", "TOO_MANY_LOGIN_ATTEMPTS"));
         response.getWriter().flush();
+        response.flushBuffer();
     }
 }

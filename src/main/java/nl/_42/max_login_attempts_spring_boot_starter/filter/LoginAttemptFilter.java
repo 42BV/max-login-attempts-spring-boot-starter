@@ -2,7 +2,6 @@ package nl._42.max_login_attempts_spring_boot_starter.filter;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.servlet.FilterChain;
@@ -43,11 +42,11 @@ public class LoginAttemptFilter extends OncePerRequestFilter {
     @Autowired
     public LoginAttemptFilter(
         LoginAttemptService loginAttemptService,
-        @Autowired(required = false) Optional<TooManyLoginAttemptsErrorHandler> tooManyLoginAttemptsErrorHandler,
+        TooManyLoginAttemptsErrorHandler tooManyLoginAttemptsErrorHandler,
         LoginAttemptConfiguration loginAttemptConfiguration
     ) {
         this.loginAttemptService = loginAttemptService;
-        this.tooManyLoginAttemptsErrorHandler = tooManyLoginAttemptsErrorHandler.orElse(new DefaultTooManyLoginAttemptsErrorHandler());
+        this.tooManyLoginAttemptsErrorHandler = tooManyLoginAttemptsErrorHandler;
         this.loginAttemptConfiguration = loginAttemptConfiguration;
 
         this.authenticationRequestMatchers = loginAttemptConfiguration.getAuthenticationEndpoints()
