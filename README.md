@@ -94,6 +94,16 @@ max-login-attempts-starter:
   clear-all-attempts-cron: '0 0 0 25 12 *' # Christmas time at 00:00
 ```
 
+## Enabling debug logging
+
+If you want more specific information on failed login attempts, enable debug logging as follows:
+
+```yaml
+logging:
+  level:
+    nl._42.max_login_attempts_spring_boot_starter: debug
+```
+
 ## Overriding the default error handler
 
 By default, the starter will return a JSON object with a key '' and a value '' when the max login attempt
@@ -101,15 +111,11 @@ has been reached. You can override this behaviour by exposing a bean that implem
 interface:
 
 ```java
-public class DefaultTooManyLoginAttemptsErrorHandler implements TooManyLoginAttemptsErrorHandler {
+public class CustomTooManyLoginAttemptsErrorHandler implements TooManyLoginAttemptsErrorHandler {
        
    @Override
    public void handle(HttpServletResponse response) throws IOException {
-       ObjectMapper objectMapper = new ObjectMapper();
-       response.setStatus(FORBIDDEN.value());
-       response.setContentType(APPLICATION_JSON_VALUE);
-       objectMapper.writeValue(response.getWriter(), Collections.singletonMap("errorCode", "CUSTOM_ERROR_CODE"));
-       response.getWriter().flush();
+      // Define your response here
    }
 }
 ```
