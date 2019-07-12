@@ -106,7 +106,7 @@ logging:
 
 ## Overriding the default error handler
 
-By default, the starter will return a JSON object with a key '' and a value '' when the max login attempt
+By default, the starter will return a JSON object with a key 'errorCode' and a value 'TOO_MANY_LOGIN_ATTEMPTS' when the max login attempt
 has been reached. You can override this behaviour by exposing a bean that implements the TooManyLoginAttemptsErrorHandler
 interface:
 
