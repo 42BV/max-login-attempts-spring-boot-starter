@@ -29,6 +29,10 @@
             <name>Sander Benschop</name>
             <email>sander.benschop@42.nl</email>
         </developer>
+        <developer>
+            <name>Robin de Boer</name>
+            <email>robin.de.boer@42.nl</email>
+        </developer>
     </developers>
 
     <scm>

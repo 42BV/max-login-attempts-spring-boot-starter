@@ -120,3 +120,27 @@ public class CustomTooManyLoginAttemptsErrorHandler implements TooManyLoginAttem
    }
 }
 ```
+
+## Resetting the user in a custom method.
+
+If a user is blocked and you want to reset it's blocked status, for
+example by resetting the user it's password, you can use the resetByUsername method
+by autowiring the LoginAttemptService.
+
+```java
+@Service
+public class UserService {
+    
+    private final LoginAttemptService loginAttemptService;
+
+    public UserService(LoginAttemptService loginAttemptService) {
+        this.loginAttemptService = loginAttemptService;
+    }
+    
+    public void resetPassword(User user) {
+        // Do some stuff
+        loginAttemptService.resetByUsername(user.getUsername());
+        // Do some stuff
+    }
+}
+```
