@@ -17,7 +17,7 @@ public class LoginAttemptConfiguration {
     private int maxAttempts = 5;
     private int cooldown = 60000;
     private List<AuthenticationEndpoint> authenticationEndpoints = singletonList(
-        AuthenticationEndpoint.create("/authentication", POST)
+            AuthenticationEndpoint.create("/authentication", POST)
     );
 
     public boolean isEnabled() {

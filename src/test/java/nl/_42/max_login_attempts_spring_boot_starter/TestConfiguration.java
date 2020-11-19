@@ -35,6 +35,9 @@ public class TestConfiguration extends WebSecurityConfigurerAdapter {
     @Lazy
     private LoginAttemptFilter loginAttemptFilter;
 
+    @Autowired
+    private GenericErrorHandler genericErrorHandler;
+
     @Bean
     public Clock clock() {
         return new AdjustableClock();
@@ -57,11 +60,6 @@ public class TestConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     public HttpSecurityCustomizer httpSecurityCustomizer() {
-        return http -> http.csrf().disable().addFilter(new RestAuthenticationFilter(genericErrorHandler(), authenticationManager())).addFilterBefore(loginAttemptFilter, RestAuthenticationFilter.class);
-    }
-
-    @Bean
-    public GenericErrorHandler genericErrorHandler() {
-        return new GenericErrorHandler();
+        return http -> http.csrf().disable().addFilter(new RestAuthenticationFilter(genericErrorHandler, authenticationManager())).addFilterBefore(loginAttemptFilter, RestAuthenticationFilter.class);
     }
 }

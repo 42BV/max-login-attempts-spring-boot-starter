@@ -2,17 +2,20 @@ package nl._42.max_login_attempts_spring_boot_starter.service;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import nl._42.max_login_attempts_spring_boot_starter.LoginAttemptConfiguration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+@Primary
 @Service
 @ConditionalOnProperty(value = "max-login-attempts-starter.enabled", matchIfMissing = true)
 public class LoginAttemptServiceImplementation implements LoginAttemptService {
@@ -27,7 +30,6 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
     private final ConcurrentHashMap<UsernameIPAddress, Integer> attemptsCache;
     private final ConcurrentHashMap<UsernameIPAddress, LocalDateTime> blockedUsernameIPAddresses;
 
-    @Autowired
     public LoginAttemptServiceImplementation(LoginAttemptConfiguration loginAttemptConfiguration, Clock clock) {
         this.loginAttemptConfiguration = loginAttemptConfiguration;
         this.clock = clock;
@@ -105,6 +107,10 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
         attemptsCache.remove(usernameIPAddress);
     }
 
+    private void clearBlocked(UsernameIPAddress usernameIPAddress) {
+        blockedUsernameIPAddresses.remove(usernameIPAddress);
+    }
+
     /**
      * Returns true if the remote address is currently blocked.
      * @param remoteAddress remote internet address
@@ -133,6 +139,21 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
             blockedUsernameIPAddresses.remove(usernameIPAddress);
             return false;
         }
+    }
+
+    @Override
+    public synchronized void resetByUsername(String username) {
+        LOGGER.info("Clearing login attempt records of user {}.", username);
+        Optional<Map.Entry<UsernameIPAddress, Integer>> entryAttempt = attemptsCache.entrySet().stream()
+                .filter(k -> k.getKey().getUsername().equals(username))
+                .findFirst();
+
+        Optional<Map.Entry<UsernameIPAddress, LocalDateTime>> entryBlocked = blockedUsernameIPAddresses.entrySet().stream()
+                .filter(k -> k.getKey().getUsername().equals(username))
+                .findFirst();
+
+        entryAttempt.ifPresent(entry -> clearAttempts(entry.getKey()));
+        entryBlocked.ifPresent(entry -> clearBlocked(entry.getKey()));
     }
 
     /**
