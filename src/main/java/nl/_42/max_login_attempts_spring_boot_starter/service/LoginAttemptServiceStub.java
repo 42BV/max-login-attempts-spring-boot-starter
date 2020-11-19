@@ -28,6 +28,11 @@ public class LoginAttemptServiceStub implements LoginAttemptService {
     }
 
     @Override
+    public void resetByUsername(String username) {
+        // do nothing
+    }
+
+    @Override
     public void reset() {
         // do nothing
     }

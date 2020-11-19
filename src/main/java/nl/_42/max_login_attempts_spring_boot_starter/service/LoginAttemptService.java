@@ -11,5 +11,7 @@ public interface LoginAttemptService {
 
     boolean isBlocked(String username, String remoteAddress);
 
+    void resetByUsername(String username);
+
     void reset();
 }
