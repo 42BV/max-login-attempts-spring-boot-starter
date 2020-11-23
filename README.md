@@ -94,6 +94,16 @@ max-login-attempts-starter:
   clear-all-attempts-cron: '0 0 0 25 12 *' # Christmas time at 00:00
 ```
 
+## Enabling the reset of attempts by username after specified ms 
+
+By default the attempt won't reset until the clear-all-attempts-cron has been run. You can add the following
+property to reset the attempts by a username after a specified time. 
+
+```yaml
+max-login-attempts-starter:
+  clear-attempts-seconds: 1800 # reset attempts after the last attempt if 30 minutes have passed
+```
+
 ## Enabling debug logging
 
 If you want more specific information on failed login attempts, enable debug logging as follows:

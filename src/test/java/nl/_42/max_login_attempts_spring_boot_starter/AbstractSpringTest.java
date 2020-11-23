@@ -17,7 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public abstract class AbstractSpringTest {
 
     @Autowired
-    private LoginAttemptService loginAttemptService;
+    protected LoginAttemptService loginAttemptService;
 
     @BeforeEach
     void clearLoginAttempts() {

@@ -27,7 +27,7 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
     private final LoginAttemptConfiguration loginAttemptConfiguration;
     private final Clock clock;
 
-    private final ConcurrentHashMap<UsernameIPAddress, Integer> attemptsCache;
+    private final ConcurrentHashMap<UsernameIPAddress, Attempts> attemptsCache;
     private final ConcurrentHashMap<UsernameIPAddress, LocalDateTime> blockedUsernameIPAddresses;
 
     public LoginAttemptServiceImplementation(LoginAttemptConfiguration loginAttemptConfiguration, Clock clock) {
@@ -64,8 +64,12 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
 
         UsernameIPAddress usernameIPAddress = new UsernameIPAddress(username, remoteAddress);
 
-        int attempts = attemptsCache.getOrDefault(usernameIPAddress, 0);
-        attemptsCache.put(usernameIPAddress, attempts + 1);
+        Attempts attempts = attemptsCache.getOrDefault(usernameIPAddress, new Attempts(clock));
+        if (shouldResetAttempt(attempts)) {
+            attemptsCache.put(usernameIPAddress, new Attempts(clock).addAttempt());
+        } else {
+            attemptsCache.put(usernameIPAddress, attempts.addAttempt());
+        }
 
         /*
          * If the remoteAddress is now blocked we mark it for removal
@@ -76,7 +80,8 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
             int attemptLimit = loginAttemptConfiguration.getMaxAttempts();
             LocalDateTime unblockTime = LocalDateTime.now(clock).plusSeconds(loginAttemptConfiguration.getCooldown() / 1000);
 
-            LOGGER.warn("User {} on remote address {} has reached the login attempt limit of {} and is now blocked until {}.",  username, remoteAddress, attemptLimit, unblockTime);
+            LOGGER.warn("User {} on remote address {} has reached the login attempt limit of {} and is now blocked until {}.", username, remoteAddress,
+                    attemptLimit, unblockTime);
             clearAttempts(usernameIPAddress);
             blockedUsernameIPAddresses.put(usernameIPAddress, unblockTime);
             return true;
@@ -85,10 +90,15 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
         return false;
     }
 
+    private boolean shouldResetAttempt(Attempts attempts) {
+        return loginAttemptConfiguration.getClearAttemptsSeconds() != null &&
+                LocalDateTime.now(clock).minusSeconds(loginAttemptConfiguration.getClearAttemptsSeconds()).isAfter(attempts.getLastAttemptTime());
+    }
+
     private boolean hasReachedLoginAttemptLimit(String username, String remoteAddress) {
         UsernameIPAddress usernameIPAddress = new UsernameIPAddress(username, remoteAddress);
-        int attempts = attemptsCache.getOrDefault(usernameIPAddress, 0);
-        return attempts >= loginAttemptConfiguration.getMaxAttempts();
+        Attempts attempts = attemptsCache.getOrDefault(usernameIPAddress, new Attempts(clock));
+        return attempts.getTotalAttempts() >= loginAttemptConfiguration.getMaxAttempts();
     }
 
     /**
@@ -144,7 +154,7 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
     @Override
     public synchronized void resetByUsername(String username) {
         LOGGER.info("Clearing login attempt records of user {}.", username);
-        Optional<Map.Entry<UsernameIPAddress, Integer>> entryAttempt = attemptsCache.entrySet().stream()
+        Optional<Map.Entry<UsernameIPAddress, Attempts>> entryAttempt = attemptsCache.entrySet().stream()
                 .filter(k -> k.getKey().getUsername().equals(username))
                 .findFirst();
 

@@ -1,0 +1,3 @@
+max-login-attempts-starter:
+  clear-attempts-seconds: 1800
+  max-attempts: 3
