@@ -33,6 +33,10 @@
             <name>Robin de Boer</name>
             <email>robin.de.boer@42.nl</email>
         </developer>
+        <developer>
+            <name>Bas de Vos</name>
+            <email>bas.de.vos@42.nl</email>
+        </developer>
     </developers>
 
     <scm>
@@ -59,12 +63,12 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
 
-        <rest-secure-starter.version>7.4.2</rest-secure-starter.version>
+        <rest-secure-starter.version>8.0.1</rest-secure-starter.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <commons-io.version>2.8.0</commons-io.version>
 
-        <spring-boot.version>2.4.0</spring-boot.version>
+        <spring-boot.version>2.4.1</spring-boot.version>
     </properties>
 
     <dependencies>
@@ -177,6 +181,19 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>6.0.4</version>
+                <configuration>
+                    <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
+                    <skipProvidedScope>true</skipProvidedScope>
+                    <skipTestScope>true</skipTestScope>
+                    <skipRuntimeScope>true</skipRuntimeScope>
+                    <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+                    <suppressionFile>owasp-suppressions.xml</suppressionFile>
+                </configuration>
             </plugin>
         </plugins>
     </build>

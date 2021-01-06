@@ -7,6 +7,7 @@ import nl._42.restsecure.autoconfigure.HttpSecurityCustomizer;
 import nl._42.restsecure.autoconfigure.RestAuthenticationFilter;
 import nl._42.restsecure.autoconfigure.WebSecurityAutoConfig;
 import nl._42.restsecure.autoconfigure.errorhandling.GenericErrorHandler;
+import nl._42.restsecure.autoconfigure.errorhandling.LoginAuthenticationExceptionHandler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -36,7 +37,7 @@ public class TestConfiguration extends WebSecurityConfigurerAdapter {
     private LoginAttemptFilter loginAttemptFilter;
 
     @Autowired
-    private GenericErrorHandler genericErrorHandler;
+    private LoginAuthenticationExceptionHandler loginErrorHandler;
 
     @Bean
     public Clock clock() {
@@ -60,6 +61,6 @@ public class TestConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     public HttpSecurityCustomizer httpSecurityCustomizer() {
-        return http -> http.csrf().disable().addFilter(new RestAuthenticationFilter(genericErrorHandler, authenticationManager())).addFilterBefore(loginAttemptFilter, RestAuthenticationFilter.class);
+        return http -> http.csrf().disable().addFilter(new RestAuthenticationFilter(loginErrorHandler, authenticationManager())).addFilterBefore(loginAttemptFilter, RestAuthenticationFilter.class);
     }
 }

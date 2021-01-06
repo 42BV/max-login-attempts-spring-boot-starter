@@ -1,4 +1,5 @@
 [![Build Status](https://github.com/42BV/max-login-attempts-spring-boot-starter/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/42BV/max-login-attempts-spring-boot-starter/actions?query=workflow%3A%22Java+CI+with+Maven%22)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/3cf8869350f1498696fac4759fc6347c)](https://www.codacy.com/gh/42BV/max-login-attempts-spring-boot-starter/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=42BV/max-login-attempts-spring-boot-starter&amp;utm_campaign=Badge_Grade)
 [![codecov](https://codecov.io/gh/42BV/max-login-attempts-spring-boot-starter/branch/master/graph/badge.svg)](https://codecov.io/gh/42BV/max-login-attempts-spring-boot-starter)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/nl.42/max-login-attempts-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/nl.42/max-login-attempts-spring-boot-starter)
 [![Javadoc](https://www.javadoc.io/badge/nl.42/max-login-attempts-spring-boot-starter.svg)](https://www.javadoc.io/doc/nl.42/max-login-attempts-spring-boot-starter)
