@@ -20,9 +20,6 @@ class AuthenticationMaxLoginAttemptsTest extends AbstractWebIntegrationTest {
     @Autowired
     private AdjustableClock adjustableClock;
 
-    @Autowired
-    private LoginAttemptService loginAttemptService;
-
     @Test
     void loginAndLogoutLog() throws Exception {
         // The current time is January 1st, 2020, 00:00:00
