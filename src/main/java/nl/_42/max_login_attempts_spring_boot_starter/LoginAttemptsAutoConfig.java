@@ -23,7 +23,7 @@ public class LoginAttemptsAutoConfig {
 
     @Bean
     @ConditionalOnMissingBean(TooManyLoginAttemptsErrorHandler.class)
-    public TooManyLoginAttemptsErrorHandler TooManyLoginAttemptsErrorHandler() {
+    public TooManyLoginAttemptsErrorHandler tooManyLoginAttemptsErrorHandler() {
         return new DefaultTooManyLoginAttemptsErrorHandler();
     }
 }

@@ -10,12 +10,32 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix = "max-login-attempts-starter")
+@ConfigurationProperties("max-login-attempts-starter")
 public class LoginAttemptConfiguration {
 
+    /**
+     * Enable or disable the max-login-attempts library.
+     */
     private boolean enabled = true;
+
+    /**
+     * Sets the total attempts a user can incorrectly login.
+     */
     private int maxAttempts = 5;
-    private int cooldown = 60000;
+
+    /**
+     * Sets the cooldown time of when a user is blocked.
+     */
+    private int cooldownInMs = 60000;
+
+    /**
+     * Cron for clearing all users from the attempts cache.
+     */
+    private String clearAllAttemptsCron = "0 0 0 * * *";
+
+    /**
+     * Sets the cooldown time of when a user is blocked.
+     */
     private List<AuthenticationEndpoint> authenticationEndpoints = singletonList(
             AuthenticationEndpoint.create("/authentication", POST)
     );
@@ -36,12 +56,20 @@ public class LoginAttemptConfiguration {
         this.maxAttempts = maxAttempts;
     }
 
-    public int getCooldown() {
-        return cooldown;
+    public int getCooldownInMs() {
+        return cooldownInMs;
     }
 
-    public void setCooldown(int cooldown) {
-        this.cooldown = cooldown;
+    public void setCooldownInMs(int cooldownInMs) {
+        this.cooldownInMs = cooldownInMs;
+    }
+
+    public String getClearAllAttemptsCron() {
+        return clearAllAttemptsCron;
+    }
+
+    public void setClearAllAttemptsCron(String clearAllAttemptsCron) {
+        this.clearAllAttemptsCron = clearAllAttemptsCron;
     }
 
     public List<AuthenticationEndpoint> getAuthenticationEndpoints() {

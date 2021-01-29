@@ -20,22 +20,17 @@ import org.springframework.stereotype.Service;
 @ConditionalOnProperty(value = "max-login-attempts-starter.enabled", matchIfMissing = true)
 public class LoginAttemptServiceImplementation implements LoginAttemptService {
 
-    public static final String DEFAULT_CLEAR_ALL_ATTEMPTS_CRON = "'0 0 0 * * *'";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoginAttemptServiceImplementation.class);
-
+    private final Logger log = LoggerFactory.getLogger(LoginAttemptServiceImplementation.class);
     private final LoginAttemptConfiguration loginAttemptConfiguration;
     private final Clock clock;
 
-    private final ConcurrentHashMap<UsernameIPAddress, Integer> attemptsCache;
-    private final ConcurrentHashMap<UsernameIPAddress, LocalDateTime> blockedUsernameIPAddresses;
+    private final ConcurrentHashMap<UsernameIPAddress, AttemptsMonitor> userCache;
 
     public LoginAttemptServiceImplementation(LoginAttemptConfiguration loginAttemptConfiguration, Clock clock) {
         this.loginAttemptConfiguration = loginAttemptConfiguration;
         this.clock = clock;
 
-        this.attemptsCache = new ConcurrentHashMap<>();
-        this.blockedUsernameIPAddresses = new ConcurrentHashMap<>();
+        this.userCache = new ConcurrentHashMap<>();
     }
 
     /**
@@ -54,41 +49,40 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
      */
     @Override
     public synchronized boolean loginFailed(String username, String remoteAddress) {
-        LOGGER.debug("User {} on remote address {} used incorrect login credentials. Added a counter to the login attempts.", username, remoteAddress);
+        log.debug("User {} on remote address {} used incorrect login credentials. Added a counter to the login attempts.", username, remoteAddress);
 
         // If the remoteAddress is already blocked we don't need to do anything and return.
         if (isBlocked(username, remoteAddress)) {
-            LOGGER.debug("User {} on remote address {} was already blocked, no additional failure is added.", username, remoteAddress);
+            log.debug("User {} on remote address {} was already blocked, no additional failure is added.", username, remoteAddress);
             return true;
         }
 
         UsernameIPAddress usernameIPAddress = new UsernameIPAddress(username, remoteAddress);
 
-        int attempts = attemptsCache.getOrDefault(usernameIPAddress, 0);
-        attemptsCache.put(usernameIPAddress, attempts + 1);
+        AttemptsMonitor attemptsMonitor = getAttemptsMonitor(usernameIPAddress);
+        attemptsMonitor.addAttempt();
+        userCache.putIfAbsent(usernameIPAddress, attemptsMonitor);
 
         /*
          * If the remoteAddress is now blocked we mark it for removal
          * but we clear the attempts so the counter starts to re-run
          * when the unblock deadline has passed.
          */
-        if (hasReachedLoginAttemptLimit(username, remoteAddress)) {
+        if (hasReachedLoginAttemptLimit(attemptsMonitor)) {
             int attemptLimit = loginAttemptConfiguration.getMaxAttempts();
-            LocalDateTime unblockTime = LocalDateTime.now(clock).plusSeconds(loginAttemptConfiguration.getCooldown() / 1000);
+            LocalDateTime unblockTime = LocalDateTime.now(clock).plusSeconds(loginAttemptConfiguration.getCooldownInMs() / 1000);
 
-            LOGGER.warn("User {} on remote address {} has reached the login attempt limit of {} and is now blocked until {}.",  username, remoteAddress, attemptLimit, unblockTime);
-            clearAttempts(usernameIPAddress);
-            blockedUsernameIPAddresses.put(usernameIPAddress, unblockTime);
+            log.warn("User {} on remote address {} has reached the login attempt limit of {} and is now blocked until {}.",  username, remoteAddress, attemptLimit, unblockTime);
+            attemptsMonitor.reset();
+            attemptsMonitor.block(unblockTime);
             return true;
         }
 
         return false;
     }
 
-    private boolean hasReachedLoginAttemptLimit(String username, String remoteAddress) {
-        UsernameIPAddress usernameIPAddress = new UsernameIPAddress(username, remoteAddress);
-        int attempts = attemptsCache.getOrDefault(usernameIPAddress, 0);
-        return attempts >= loginAttemptConfiguration.getMaxAttempts();
+    private boolean hasReachedLoginAttemptLimit(AttemptsMonitor attemptsMonitor) {
+        return attemptsMonitor.getAttempts() >= loginAttemptConfiguration.getMaxAttempts();
     }
 
     /**
@@ -98,17 +92,13 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
      */
     @Override
     public void loginSucceeded(String username, String remoteAddress) {
-        LOGGER.debug("User {} on remote address {} succeeded to login.", username, remoteAddress);
+        log.debug("User {} on remote address {} succeeded to login.", username, remoteAddress);
         UsernameIPAddress usernameIPAddress = new UsernameIPAddress(username, remoteAddress);
-        clearAttempts(usernameIPAddress);
+        getAttemptsMonitor(usernameIPAddress).reset();
     }
 
-    private void clearAttempts(UsernameIPAddress usernameIPAddress) {
-        attemptsCache.remove(usernameIPAddress);
-    }
-
-    private void clearBlocked(UsernameIPAddress usernameIPAddress) {
-        blockedUsernameIPAddresses.remove(usernameIPAddress);
+    private AttemptsMonitor getAttemptsMonitor(UsernameIPAddress usernameIPAddress) {
+        return userCache.getOrDefault(usernameIPAddress, new AttemptsMonitor());
     }
 
     /**
@@ -120,40 +110,28 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
     public synchronized boolean isBlocked(String username, String remoteAddress) {
         UsernameIPAddress usernameIPAddress = new UsernameIPAddress(username, remoteAddress);
 
-        /*
-         * If the username/ip-address combination is not currently in the
-         * blockedUsernameIPAddresses map we are sure it is not blocked.
-         */
-        if (!blockedUsernameIPAddresses.containsKey(usernameIPAddress)) {
-            return false;
-        }
-
         // Otherwise we retrieve the unblockTime and check if it has passed.
         // If it has passed we do a little cleanup and remove the record.
-        LocalDateTime unblockTime = blockedUsernameIPAddresses.get(usernameIPAddress);
-        if (LocalDateTime.now(clock).isBefore(unblockTime)) {
-            LOGGER.debug("User {} on remote address {} cannot log in because he is blocked until {}", username, remoteAddress, unblockTime);
+        AttemptsMonitor attemptsMonitor = getAttemptsMonitor(usernameIPAddress);
+        LocalDateTime unblockTime = attemptsMonitor.getUnblockTime();
+        if (attemptsMonitor.isBlocked(clock)) {
+            log.debug("User {} on remote address {} cannot log in because he is blocked until {}", username, remoteAddress, unblockTime);
             return true;
         } else {
-            LOGGER.debug("User {} on remote address {} may login again because the unblock time of {} has passed.", unblockTime, remoteAddress, unblockTime);
-            blockedUsernameIPAddresses.remove(usernameIPAddress);
+            log.debug("User {} on remote address {} may login again because the unblock time of {} has passed.", unblockTime, remoteAddress, unblockTime);
+            attemptsMonitor.unblock();
             return false;
         }
     }
 
     @Override
     public synchronized void resetByUsername(String username) {
-        LOGGER.info("Clearing login attempt records of user {}.", username);
-        Optional<Map.Entry<UsernameIPAddress, Integer>> entryAttempt = attemptsCache.entrySet().stream()
+        log.info("Clearing login attempt records of user {}.", username);
+        Optional<Map.Entry<UsernameIPAddress, AttemptsMonitor>> entryAttempt = userCache.entrySet().stream()
                 .filter(k -> k.getKey().getUsername().equals(username))
                 .findFirst();
 
-        Optional<Map.Entry<UsernameIPAddress, LocalDateTime>> entryBlocked = blockedUsernameIPAddresses.entrySet().stream()
-                .filter(k -> k.getKey().getUsername().equals(username))
-                .findFirst();
-
-        entryAttempt.ifPresent(entry -> clearAttempts(entry.getKey()));
-        entryBlocked.ifPresent(entry -> clearBlocked(entry.getKey()));
+        entryAttempt.ifPresent(entry -> getAttemptsMonitor(entry.getKey()).reset());
     }
 
     /**
@@ -161,10 +139,9 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
      * Can be executed manually and also be scheduled to reset automatically.
      */
     @Override
-    @Scheduled(cron = "${max-login-attempts-starter.clear-all-attempts-cron:#{" + DEFAULT_CLEAR_ALL_ATTEMPTS_CRON + "}}")
+    @Scheduled(cron = "#{@loginAttemptConfiguration.clearAllAttemptsCron}")
     public synchronized void reset() {
-        LOGGER.info("Clearing all login attempt records.");
-        attemptsCache.clear();
-        blockedUsernameIPAddresses.clear();
+        log.info("Clearing all login attempt records.");
+        userCache.clear();
     }
 }
