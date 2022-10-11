@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.2.xsd">
     <suppress>
-        <notes>This is all about lower versions of the springframework.</notes>
-        <filePath regex="true">.*\bspring-security.*-5\.4\.2\.jar</filePath>
-        <cve>CVE-2018-1258</cve>
+        <notes>Check if these should be removed when updating spring-boot</notes>
+        <cve>CVE-2016-1000027</cve>
+        <cve>CVE-2022-42003</cve>
+        <cve>CVE-2020-5408</cve>
+        <cve>CVE-2022-38752</cve>
     </suppress>
 </suppressions>
