@@ -29,9 +29,9 @@ public class AuthenticationFailureListener implements ApplicationListener<Authen
     @Override
     public void onApplicationEvent(AuthenticationFailureBadCredentialsEvent event) {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        if (requestAttributes instanceof ServletRequestAttributes) {
+        if (requestAttributes instanceof ServletRequestAttributes attributes) {
             String username = String.valueOf(event.getAuthentication().getPrincipal());
-            HttpServletRequest request = ((ServletRequestAttributes)requestAttributes).getRequest();
+            HttpServletRequest request = attributes.getRequest();
 
             boolean nowBlocked = loginAttemptService.loginFailed(username, request.getRemoteAddr());
             if (nowBlocked) {

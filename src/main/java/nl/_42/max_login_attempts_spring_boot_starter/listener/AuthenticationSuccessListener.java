@@ -25,9 +25,9 @@ public class AuthenticationSuccessListener implements ApplicationListener<Authen
     @Override
     public void onApplicationEvent(AuthenticationSuccessEvent event) {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        if (requestAttributes instanceof ServletRequestAttributes) {
+        if (requestAttributes instanceof ServletRequestAttributes attributes) {
             String username = String.valueOf(event.getAuthentication().getPrincipal());
-            HttpServletRequest request = ((ServletRequestAttributes)requestAttributes).getRequest();
+            HttpServletRequest request = attributes.getRequest();
             loginAttemptService.loginSucceeded(username, request.getRemoteAddr());
         }
     }

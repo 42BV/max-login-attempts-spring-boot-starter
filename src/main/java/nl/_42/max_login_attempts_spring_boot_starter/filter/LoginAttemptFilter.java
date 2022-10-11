@@ -2,7 +2,6 @@ package nl._42.max_login_attempts_spring_boot_starter.filter;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -49,10 +48,9 @@ public class LoginAttemptFilter extends OncePerRequestFilter {
         this.tooManyLoginAttemptsErrorHandler = tooManyLoginAttemptsErrorHandler;
         this.loginAttemptConfiguration = loginAttemptConfiguration;
 
-        this.authenticationRequestMatchers = loginAttemptConfiguration.getAuthenticationEndpoints()
-                .stream()
+        this.authenticationRequestMatchers = loginAttemptConfiguration.getAuthenticationEndpoints().stream()
                 .map(loginEndpoint -> new AntPathRequestMatcher(loginEndpoint.getPath(), loginEndpoint.getMethod().name()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
