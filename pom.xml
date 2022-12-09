@@ -61,7 +61,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.release>17</maven.compiler.release>
-        <snakeyaml.version>1.33</snakeyaml.version> <!-- IMPORTANT: Remove this when a newer version of Spring Boot contains this version or higher -->
 
         <spring-boot.version>2.7.6</spring-boot.version>
         <rest-secure-starter.version>11.0.0</rest-secure-starter.version>
@@ -75,6 +74,8 @@
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+
+        <snakeyaml.version>1.33</snakeyaml.version> <!-- Only used for test scope -->
     </properties>
 
     <dependencies>
@@ -97,6 +98,16 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <optional>true</optional>
+            <exclusions>
+                <!--
+                    We don't need this packaged in the library, the users of the library will use spring-boot-started-web-themselves.
+                    This library results in quite a few OWASP findings.
+                 -->
+                <exclusion>
+                    <groupId>org.yaml</groupId>
+                    <artifactId>snakeyaml</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -133,6 +144,12 @@
             <version>${rest-secure-starter.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>${snakeyaml.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -143,11 +160,6 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency> <!-- IMPORTANT: Remove this when a newer version of Spring Boot contains this version or higher -->
-                <groupId>org.yaml</groupId>
-                <artifactId>snakeyaml</artifactId>
-                <version>${snakeyaml.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

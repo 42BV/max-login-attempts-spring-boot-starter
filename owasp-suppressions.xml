@@ -11,9 +11,4 @@
         <notes>We don't make use of commons_net, also not transitively. So this is a false positive.</notes>
         <cve>CVE-2021-37533</cve>
     </suppress>
-    <suppress>
-        <notes>We only use yaml in our server-side config, so it is safely under our control, we don't need to worry about a DoS-attack.</notes>
-        <packageUrl regex="true">^pkg:maven\/org\.yaml\/snakeyaml@\d+\.\d+$</packageUrl>
-        <cve>CVE-2022-1471</cve>
-    </suppress>
 </suppressions>
