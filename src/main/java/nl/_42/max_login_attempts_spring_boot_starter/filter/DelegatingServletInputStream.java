@@ -3,8 +3,8 @@ package nl._42.max_login_attempts_spring_boot_starter.filter;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.servlet.ReadListener;
-import javax.servlet.ServletInputStream;
+import jakarta.servlet.ReadListener;
+import jakarta.servlet.ServletInputStream;
 
 /**
  * Used to create the {@link ConsumingHttpServletRequestWrapper}.

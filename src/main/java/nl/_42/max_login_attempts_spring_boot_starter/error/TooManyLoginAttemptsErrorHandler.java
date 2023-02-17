@@ -2,7 +2,7 @@ package nl._42.max_login_attempts_spring_boot_starter.error;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Component;
 

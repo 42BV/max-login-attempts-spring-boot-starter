@@ -1,1 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=nl._42.max_login_attempts_spring_boot_starter.LoginAttemptsAutoConfig
