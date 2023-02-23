@@ -1,17 +1,16 @@
 package nl._42.max_login_attempts_spring_boot_starter;
 
-import java.time.Clock;
-
 import nl._42.max_login_attempts_spring_boot_starter.error.TooManyLoginAttemptsErrorHandler;
-
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.Clock;
+
 @Configuration
-@ComponentScan(basePackages = "nl._42.max_login_attempts_spring_boot_starter")
+@ComponentScan(basePackageClasses = LoginAttemptsAutoConfig.class)
 @EnableConfigurationProperties
 public class LoginAttemptsAutoConfig {
 

@@ -1,6 +1,6 @@
 package nl._42.max_login_attempts_spring_boot_starter.listener;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import nl._42.max_login_attempts_spring_boot_starter.service.LoginAttemptService;
 

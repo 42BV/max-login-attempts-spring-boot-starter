@@ -1,19 +1,17 @@
 package nl._42.max_login_attempts_spring_boot_starter.integration;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-
-import java.time.LocalDateTime;
-
 import nl._42.max_login_attempts_spring_boot_starter.AbstractWebIntegrationTest;
 import nl._42.max_login_attempts_spring_boot_starter.AdjustableClock;
-import nl._42.max_login_attempts_spring_boot_starter.service.LoginAttemptService;
-import nl._42.restsecure.autoconfigure.RestAuthenticationFilter;
-
+import nl._42.restsecure.autoconfigure.form.LoginForm;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.time.LocalDateTime;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 class AuthenticationMaxLoginAttemptsTest extends AbstractWebIntegrationTest {
 
@@ -25,15 +23,15 @@ class AuthenticationMaxLoginAttemptsTest extends AbstractWebIntegrationTest {
         // The current time is January 1st, 2020, 00:00:00
         adjustableClock.setTime(LocalDateTime.of(2020, 1, 1, 0, 0, 0));
 
-        RestAuthenticationFilter.LoginForm incorrectLoginForm = new RestAuthenticationFilter.LoginForm();
+        LoginForm incorrectLoginForm = new LoginForm();
         incorrectLoginForm.username = "admin";
         incorrectLoginForm.password = "niet-welkom-1337";
 
-        RestAuthenticationFilter.LoginForm correctLoginForm = new RestAuthenticationFilter.LoginForm();
+        LoginForm correctLoginForm = new LoginForm();
         correctLoginForm.username = "admin";
         correctLoginForm.password = "welkom";
 
-        RestAuthenticationFilter.LoginForm pietLoginForm = new RestAuthenticationFilter.LoginForm();
+        LoginForm pietLoginForm = new LoginForm();
         pietLoginForm.username = "other-user";
         pietLoginForm.password = "niet-welkom";
 
