@@ -6,6 +6,7 @@ import nl._42.max_login_attempts_spring_boot_starter.filter.LoginAttemptFilter;
 import nl._42.restsecure.autoconfigure.HttpSecurityCustomizer;
 import nl._42.restsecure.autoconfigure.RestAuthenticationFilter;
 import nl._42.restsecure.autoconfigure.WebSecurityAutoConfig;
+import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -17,8 +18,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
 @ComponentScan(value = "nl._42.max_login_attempts_spring_boot_starter")
@@ -36,8 +35,8 @@ public class TestConfiguration {
     }
 
     @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
+    public JsonMapper objectMapper() {
+        return JsonMapper.builder().build();
     }
 
     @Bean

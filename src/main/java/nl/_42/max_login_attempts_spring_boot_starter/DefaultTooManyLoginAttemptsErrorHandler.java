@@ -7,10 +7,8 @@ import java.io.IOException;
 import java.util.Collections;
 
 import jakarta.servlet.http.HttpServletResponse;
-
 import nl._42.max_login_attempts_spring_boot_starter.error.TooManyLoginAttemptsErrorHandler;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Default implementation of TooManyLoginAttemptsErrorHandler.
@@ -21,7 +19,7 @@ class DefaultTooManyLoginAttemptsErrorHandler implements TooManyLoginAttemptsErr
 
     @Override
     public void handle(HttpServletResponse response) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
+        JsonMapper objectMapper = JsonMapper.builder().build();
         response.setStatus(FORBIDDEN.value());
         response.setContentType(APPLICATION_JSON_VALUE);
         objectMapper.writeValue(response.getWriter(), Collections.singletonMap("errorCode", "TOO_MANY_LOGIN_ATTEMPTS"));

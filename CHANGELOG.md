@@ -5,17 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-- Instructions (for deployment instructions).
-- Added (for new features).
-- Changed (for changes in existing functionality
-- Deprecated (for soon-to-be removed features).
-- Removed (for now removed features).
-- Fixed (for any bug fixes).
-- Security (in case of vulnerabilities).
+## [3.0.0] 2025-12-03
+- Upgraded to Java 21, Spring Boot 4
 
-## [Unreleased]
-
-### Issues
-
-- Upgraded to java 17
-- Updated spring from 2.4 to 2.7

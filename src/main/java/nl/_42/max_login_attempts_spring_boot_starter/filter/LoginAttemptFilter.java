@@ -11,6 +11,8 @@ import nl._42.max_login_attempts_spring_boot_starter.LoginAttemptConfiguration;
 import nl._42.max_login_attempts_spring_boot_starter.error.TooManyLoginAttemptsErrorHandler;
 import nl._42.max_login_attempts_spring_boot_starter.listener.UsernameRemoteAddressBlockedException;
 import nl._42.max_login_attempts_spring_boot_starter.service.LoginAttemptService;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +20,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Filter which checks if the login request is executed while the user is already blocked
@@ -96,7 +95,7 @@ public class LoginAttemptFilter extends OncePerRequestFilter {
 
     private String readUsername(HttpServletRequest request) throws IOException {
         String loginFormJson = IOUtils.toString(request.getReader());
-        ObjectNode node = new ObjectMapper().readValue(loginFormJson, ObjectNode.class);
-        return node.get("username").asText();
+        ObjectNode node = JsonMapper.builder().build().readValue(loginFormJson, ObjectNode.class);
+        return node.get("username").asString();
     }
 }
