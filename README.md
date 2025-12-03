@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/42BV/max-login-attempts-spring-boot-starter/workflows/maven.yml/badge.svg)](https://github.com/42BV/max-login-attempts-spring-boot-starter/actions/workflows/maven.yml)
+[![Java CI with Maven](https://github.com/42BV/max-login-attempts-spring-boot-starter/actions/workflows/maven.yml/badge.svg)](https://github.com/42BV/max-login-attempts-spring-boot-starter/actions/workflows/maven.yml)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/3cf8869350f1498696fac4759fc6347c)](https://app.codacy.com/gh/42BV/max-login-attempts-spring-boot-starter/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![codecov](https://codecov.io/gh/42BV/max-login-attempts-spring-boot-starter/graph/badge.svg?token=wWgpnSbjBC)](https://codecov.io/gh/42BV/max-login-attempts-spring-boot-starter)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/nl.42/max-login-attempts-spring-boot-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/nl.42/max-login-attempts-spring-boot-starter)
