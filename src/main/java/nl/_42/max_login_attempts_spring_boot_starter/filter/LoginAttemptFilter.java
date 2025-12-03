@@ -7,7 +7,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import nl._42.max_login_attempts_spring_boot_starter.LoginAttemptConfiguration;
 import nl._42.max_login_attempts_spring_boot_starter.error.TooManyLoginAttemptsErrorHandler;
 import nl._42.max_login_attempts_spring_boot_starter.listener.UsernameRemoteAddressBlockedException;
@@ -16,7 +15,7 @@ import nl._42.max_login_attempts_spring_boot_starter.service.LoginAttemptService
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -36,7 +35,7 @@ public class LoginAttemptFilter extends OncePerRequestFilter {
 
     private final LoginAttemptConfiguration loginAttemptConfiguration;
 
-    private final List<AntPathRequestMatcher> authenticationRequestMatchers;
+    private final List<PathPatternRequestMatcher> authenticationRequestMatchers;
 
     @Autowired
     public LoginAttemptFilter(
@@ -49,7 +48,7 @@ public class LoginAttemptFilter extends OncePerRequestFilter {
         this.loginAttemptConfiguration = loginAttemptConfiguration;
 
         this.authenticationRequestMatchers = loginAttemptConfiguration.getAuthenticationEndpoints().stream()
-                .map(loginEndpoint -> new AntPathRequestMatcher(loginEndpoint.getPath(), loginEndpoint.getMethod().name()))
+                .map(loginEndpoint -> PathPatternRequestMatcher.withDefaults().matcher(loginEndpoint.getMethod(), loginEndpoint.getPath()))
                 .toList();
     }
 

@@ -13,6 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -51,6 +52,6 @@ public class TestConfiguration {
 
     @Bean
     public HttpSecurityCustomizer httpSecurityCustomizer() {
-        return http -> http.csrf().disable().addFilterBefore(loginAttemptFilter, RestAuthenticationFilter.class);
+        return http -> http.csrf(AbstractHttpConfigurer::disable).addFilterBefore(loginAttemptFilter, RestAuthenticationFilter.class);
     }
 }
