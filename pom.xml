@@ -4,7 +4,7 @@
 
     <groupId>nl.42</groupId>
     <artifactId>max-login-attempts-spring-boot-starter</artifactId>
-    <version>2.0.1-SNAPSHOT</version>
+    <version>3.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Max Login Attempts Spring Boot Starter</name>
     <description>Allows you to limit the number of login attempts</description>
