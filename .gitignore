@@ -35,3 +35,6 @@ hs_err_*.log
 
 .ideaDataSources/
 dataSources/
+
+.java-version
+pom.xml.versionsBackup
