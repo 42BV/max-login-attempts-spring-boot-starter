@@ -34,6 +34,12 @@ public class LoginAttemptConfiguration {
     private String clearAllAttemptsCron = "0 0 0 * * *";
 
     /**
+     * Match usernames case-sensitively in the lockout administration. Enable this when usernames
+     * are case-sensitive in your application, i.e. 'Admin' and 'admin' can be different users.
+     */
+    private boolean caseSensitiveUsernames = false;
+
+    /**
      * Sets the cooldown time of when a user is blocked.
      */
     private List<AuthenticationEndpoint> authenticationEndpoints = singletonList(
@@ -70,6 +76,14 @@ public class LoginAttemptConfiguration {
 
     public void setClearAllAttemptsCron(String clearAllAttemptsCron) {
         this.clearAllAttemptsCron = clearAllAttemptsCron;
+    }
+
+    public boolean isCaseSensitiveUsernames() {
+        return caseSensitiveUsernames;
+    }
+
+    public void setCaseSensitiveUsernames(boolean caseSensitiveUsernames) {
+        this.caseSensitiveUsernames = caseSensitiveUsernames;
     }
 
     public List<AuthenticationEndpoint> getAuthenticationEndpoints() {
