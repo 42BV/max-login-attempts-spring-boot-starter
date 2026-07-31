@@ -2,8 +2,7 @@ package nl._42.max_login_attempts_spring_boot_starter.service;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Optional;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
 import nl._42.max_login_attempts_spring_boot_starter.LoginAttemptConfiguration;
@@ -57,7 +56,7 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
             return true;
         }
 
-        UsernameIPAddress usernameIPAddress = new UsernameIPAddress(username, remoteAddress);
+        UsernameIPAddress usernameIPAddress = key(username, remoteAddress);
 
         AttemptsMonitor attemptsMonitor = getAttemptsMonitor(usernameIPAddress);
         attemptsMonitor.addAttempt();
@@ -91,10 +90,9 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
      * @param remoteAddress remote internet address
      */
     @Override
-    public void loginSucceeded(String username, String remoteAddress) {
+    public synchronized void loginSucceeded(String username, String remoteAddress) {
         log.debug("User {} on remote address {} succeeded to login.", username, remoteAddress);
-        UsernameIPAddress usernameIPAddress = new UsernameIPAddress(username, remoteAddress);
-        getAttemptsMonitor(usernameIPAddress).reset();
+        userCache.remove(key(username, remoteAddress));
     }
 
     private AttemptsMonitor getAttemptsMonitor(UsernameIPAddress usernameIPAddress) {
@@ -108,7 +106,7 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
      */
     @Override
     public synchronized boolean isBlocked(String username, String remoteAddress) {
-        UsernameIPAddress usernameIPAddress = new UsernameIPAddress(username, remoteAddress);
+        UsernameIPAddress usernameIPAddress = key(username, remoteAddress);
 
         // Otherwise we retrieve the unblockTime and check if it has passed.
         // If it has passed we do a little cleanup and remove the record.
@@ -124,14 +122,28 @@ public class LoginAttemptServiceImplementation implements LoginAttemptService {
         }
     }
 
+    /**
+     * Clears the login attempt records of the given username for every remote address.
+     * Unless case-sensitive usernames are enabled, the username is matched case-insensitively,
+     * so the records are also cleared when the failed attempts were typed with a different casing.
+     */
     @Override
     public synchronized void resetByUsername(String username) {
         log.info("Clearing login attempt records of user {}.", username);
-        Optional<Map.Entry<UsernameIPAddress, AttemptsMonitor>> entryAttempt = userCache.entrySet().stream()
-                .filter(k -> k.getKey().getUsername().equals(username))
-                .findFirst();
+        String normalized = normalize(username);
+        userCache.keySet().removeIf(key -> key.getUsername().equals(normalized));
+    }
 
-        entryAttempt.ifPresent(entry -> getAttemptsMonitor(entry.getKey()).reset());
+    private UsernameIPAddress key(String username, String remoteAddress) {
+        return new UsernameIPAddress(normalize(username), remoteAddress);
+    }
+
+    private String normalize(String username) {
+        if (username == null) {
+            return "";
+        }
+        String trimmed = username.trim();
+        return loginAttemptConfiguration.isCaseSensitiveUsernames() ? trimmed : trimmed.toLowerCase(Locale.ROOT);
     }
 
     /**

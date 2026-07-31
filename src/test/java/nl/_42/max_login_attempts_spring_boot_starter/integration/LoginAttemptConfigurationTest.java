@@ -1,6 +1,7 @@
 package nl._42.max_login_attempts_spring_boot_starter.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import nl._42.max_login_attempts_spring_boot_starter.AbstractWebIntegrationTest;
 import nl._42.max_login_attempts_spring_boot_starter.LoginAttemptConfiguration;
@@ -18,5 +19,6 @@ class LoginAttemptConfigurationTest extends AbstractWebIntegrationTest {
         assertEquals(3, loginAttemptConfiguration.getMaxAttempts());
         assertEquals(60001, loginAttemptConfiguration.getCooldownInMs());
         assertEquals("0 */1 * * *", loginAttemptConfiguration.getClearAllAttemptsCron());
+        assertFalse(loginAttemptConfiguration.isCaseSensitiveUsernames());
     }
 }

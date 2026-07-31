@@ -90,6 +90,20 @@ max-login-attempts-starter:
   cooldown-in-ms: 90000 # (1,5 minute)
 ``` 
 
+## Case-sensitive usernames
+
+Usernames are normalized (trimmed and lowercased) before they are used in the lockout
+administration, so failed attempts, block checks and resets refer to the same record however
+the username was typed in the login form. If usernames are case-sensitive in your application
+(`Admin` and `admin` can be different users), enable case-sensitive matching:
+
+```yaml
+max-login-attempts-starter:
+  case-sensitive-usernames: true
+```
+
+Usernames are still trimmed of surrounding whitespace when this setting is enabled.
+
 ## Overriding the default CRON that resets the counters
 
 Because it is probably not desirable that failed login attempts are counted "over multiple days",
