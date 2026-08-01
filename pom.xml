@@ -37,6 +37,10 @@
             <name>Bas de Vos</name>
             <email>bas.de.vos@42.nl</email>
         </developer>
+        <developer>
+            <name>Arjan Vlek</name>
+            <email>arjan.vlek@42.nl</email>
+        </developer>
     </developers>
 
     <scm>
@@ -51,12 +55,19 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.release>21</maven.compiler.release>
 
-        <spring-boot.version>4.0.0</spring-boot.version>
-        <rest-secure-starter.version>15.0.0</rest-secure-starter.version>
-        <commons-io.version>2.21.0</commons-io.version>
+        <spring-boot.version>4.1.0</spring-boot.version>
+        <rest-secure-starter.version>16.1.0</rest-secure-starter.version>
+        <commons-io.version>2.22.0</commons-io.version>
 
-        <dependency-check-maven-plugin.version>12.1.9</dependency-check-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
+        <!-- CVE overrides of versions managed by spring-boot-dependencies.
+             Remove once Spring Boot manages these versions (or higher). -->
+        <tomcat.version>11.0.24</tomcat.version><!-- CVE-2026-53434 et al., fixed in 11.0.24 -->
+        <logback.version>1.5.38</logback.version><!-- CVE-2026-13006, fixed in 1.5.37 -->
+        <log4j2.version>2.25.5</log4j2.version><!-- CVE-2026-49844, fixed in 2.25.5 -->
+        <jackson.version>3.1.5</jackson.version><!-- CVE-2026-59889, fixed in 3.1.5 -->
+
+        <dependency-check-maven-plugin.version>12.2.2</dependency-check-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <central-publishing-plugin.version>0.9.0</central-publishing-plugin.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
@@ -124,6 +135,55 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- CVE overrides: these entries must precede the spring-boot-dependencies import,
+                 because property overrides do not work when importing the BOM (as opposed to
+                 inheriting from spring-boot-starter-parent). -->
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-el</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-websocket</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${log4j2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-to-slf4j</artifactId>
+                <version>${log4j2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>tools.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>tools.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
