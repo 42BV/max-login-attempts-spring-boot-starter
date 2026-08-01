@@ -1,3 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <suppress>
+        <notes><![CDATA[
+        CVE-2026-47838 (SubjectDnX509PrincipalExtractor username spoofing via crafted client
+        certificate) is a false positive on spring-security-web 7.1.0 caused by an over-broad
+        CPE match. Per https://spring.io/security/cve-2026-47838/ the CVE affects 5.7.x-6.5.x
+        (fixed in 6.5.11); the 7.x line received the equivalent fix under CVE-2026-22747 in
+        7.0.5, and in 7.1.0 SubjectDnX509PrincipalExtractor is deprecated and
+        X509AuthenticationFilter defaults to the fixed SubjectX500PrincipalExtractor.
+        Additionally, this starter does not use X.509 pre-authentication at all (form/JSON
+        login only), so none of the exploitation preconditions apply.
+        The packageUrl below is scoped to the 7.x line on purpose: should a genuinely
+        vulnerable 6.x spring-security-web ever be resolved, this suppression stops applying
+        and dependency-check will flag it again.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-web@7\..*$</packageUrl>
+        <cve>CVE-2026-47838</cve>
+    </suppress>
 </suppressions>
