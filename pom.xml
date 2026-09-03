@@ -61,7 +61,7 @@
 
         <!-- CVE overrides of versions managed by spring-boot-dependencies.
              Remove once Spring Boot manages these versions (or higher). -->
-        <tomcat.version>11.0.24</tomcat.version><!-- CVE-2026-53434 et al., fixed in 11.0.24 -->
+        <tomcat.version>11.0.25</tomcat.version><!-- CVE-2026-53434 et al., fixed in 11.0.24 -->
         <logback.version>1.5.38</logback.version><!-- CVE-2026-13006, fixed in 1.5.37 -->
         <log4j2.version>2.25.5</log4j2.version><!-- CVE-2026-49844, fixed in 2.25.5 -->
         <jackson.version>3.1.5</jackson.version><!-- CVE-2026-59889, fixed in 3.1.5 -->
