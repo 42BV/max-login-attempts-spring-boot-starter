@@ -55,8 +55,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.release>21</maven.compiler.release>
 
-        <spring-boot.version>4.1.0</spring-boot.version>
-        <rest-secure-starter.version>16.1.0</rest-secure-starter.version>
+        <spring-boot.version>4.1.2</spring-boot.version>
+        <rest-secure-starter.version>16.1.1</rest-secure-starter.version>
         <commons-io.version>2.22.0</commons-io.version>
 
         <!-- CVE overrides of versions managed by spring-boot-dependencies.
