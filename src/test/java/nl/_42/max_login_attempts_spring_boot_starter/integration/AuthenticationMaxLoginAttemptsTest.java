@@ -4,6 +4,8 @@ import nl._42.max_login_attempts_spring_boot_starter.AbstractWebIntegrationTest;
 import nl._42.max_login_attempts_spring_boot_starter.AdjustableClock;
 import nl._42.restsecure.autoconfigure.form.LoginForm;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -87,5 +89,14 @@ class AuthenticationMaxLoginAttemptsTest extends AbstractWebIntegrationTest {
             .perform(MockMvcRequestBuilders.post("/authentication")
             .content(objectMapper.writeValueAsString(correctLoginForm)))
             .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "{\"password\":\"niet-welkom\"}", "{\"username\":null}", "{\"username\":42}", "not json", "" })
+    void loginWithoutUsernameIsUnauthorized(String body) throws Exception {
+        webClient
+            .perform(MockMvcRequestBuilders.post("/authentication")
+            .content(body))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 }

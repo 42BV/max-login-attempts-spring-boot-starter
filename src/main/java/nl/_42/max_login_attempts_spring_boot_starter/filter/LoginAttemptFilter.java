@@ -11,8 +11,9 @@ import nl._42.max_login_attempts_spring_boot_starter.LoginAttemptConfiguration;
 import nl._42.max_login_attempts_spring_boot_starter.error.TooManyLoginAttemptsErrorHandler;
 import nl._42.max_login_attempts_spring_boot_starter.listener.UsernameRemoteAddressBlockedException;
 import nl._42.max_login_attempts_spring_boot_starter.service.LoginAttemptService;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.databind.node.ObjectNode;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +72,13 @@ public class LoginAttemptFilter extends OncePerRequestFilter {
              */
             passedRequest = new ConsumingHttpServletRequestWrapper(request);
 
-            if (loginAttemptService.isBlocked(readUsername(passedRequest), request.getRemoteAddr())) {
+            /*
+             * A body without a username (no JSON, or JSON without a textual
+             * "username") cannot be blocked: it is passed on, and the
+             * authentication itself rejects it.
+             */
+            String username = readUsername(passedRequest);
+            if (username != null && loginAttemptService.isBlocked(username, request.getRemoteAddr())) {
                 handleUsernameIpAddressBlocked(response);
                 return;
             }
@@ -95,7 +102,11 @@ public class LoginAttemptFilter extends OncePerRequestFilter {
 
     private String readUsername(HttpServletRequest request) throws IOException {
         String loginFormJson = IOUtils.toString(request.getReader());
-        ObjectNode node = JsonMapper.builder().build().readValue(loginFormJson, ObjectNode.class);
-        return node.get("username").asString();
+        try {
+            JsonNode username = JsonMapper.builder().build().readTree(loginFormJson).get("username");
+            return username != null && username.isString() ? username.asString() : null;
+        } catch (JacksonException e) {
+            return null;
+        }
     }
 }
